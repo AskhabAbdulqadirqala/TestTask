@@ -1,10 +1,11 @@
 function sostavChisla(massivChisel, chislo) {
   let kombs = []; //массив со вмеми комбинациями
-  let sumKombs = []; //массив с нужными комбинациями
+  let sumKombs = {}; //объект с нужными комбинациями
 
   massivChisel.sort((a, b) => a-b).forEach(elem => {
     kombs.push([elem])
-    if (elem===chislo) sumKombs.push(String(elem))
+    if (elem===chislo)
+      sumKombs[elem] = [elem]; //комбинация будет добавляться в key как String (для сравнений) и как Array в value;
   });
   
   let k = kombs.length;
@@ -14,17 +15,12 @@ function sostavChisla(massivChisel, chislo) {
       if (kombs[j+1]) {
         let len = kombs.length;
         kombs[len] = [...kombs[i], ...kombs[j+1]];
-        if ((kombs[len].reduce((acc, num) => acc + num, 0) === chislo)
-             && (new Set(kombs[len]).size === kombs[len].length)) {
-          sumKombs.push(kombs[len].sort((a, b) => a-b).join())  //комбинация вносится отсортированной и в виде строки для удаления неуникальных
-        }
+        if ((kombs[len].reduce((acc, num) => acc + num, 0) === chislo)            //проверка на соотвествие суммы нужному значению
+             && (new Set(kombs[len]).size === kombs[len].length)                  //проверка на уникальность чисел в комбинации
+             && !sumKombs.hasOwnProperty(kombs[len].sort((a, b) => a-b).join())   //проверка на отсутствие комнинации в нашем объекте
+           ) 
+            sumKombs[kombs[len].sort((a, b) => a-b).join()] = kombs[len]; //вносим комбинацию в key как String и в value как Array
       }
   }
-  
-  sumKombs = [...new Set(sumKombs)]; //перевод в Set для удаления неуникальных комбинаций
-  sumKombs.forEach((elem, i) => { //обратный перевод в подмассивы из строк
-    sumKombs[i] = sumKombs[i].split(',');
-    sumKombs[i].forEach((elem, j) => sumKombs[i][j] = +sumKombs[i][j])
-  })
-  return sumKombs;
+  return Object.values(sumKombs); //выводим только values
 }
